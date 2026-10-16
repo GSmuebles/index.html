@@ -693,7 +693,7 @@
                 return;
             }
 
-            let message = "Hola! Quisiera consultar/pedir los siguientes muebles de madera:\n\n";
+            let message = "Hola! Quisiera consultar/pedir cotizacion con envio de los siguientes muebles!:\n\n";
             cart.forEach(item => {
                 message += `• ${item.quantity}x ${item.title} ($${(item.price * item.quantity).toFixed(2)})\n`;
             });
@@ -701,13 +701,13 @@
             const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             message += `\n*Total estimado: $${total.toFixed(2)}*\n\n¿Tienen disponibilidad y coordinamos la entrega?`;
 
-            const phone = "5491112345678"; // Reemplaza con tu número de WhatsApp
+            const phone = "5492657600304"; // Reemplaza con tu número de WhatsApp
             const encoded = encodeURIComponent(message);
             window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
         }
 
         function contactWhatsAppDirect() {
-            const phone = "5491112345678";
+            const phone = "5492657600304";
             const text = encodeURIComponent("Hola! Quisiera consultar sobre la fabricación de un mueble a medida.");
             window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
         }
