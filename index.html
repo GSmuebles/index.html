@@ -1,3 +1,10 @@
+Si no funciona ningún botón y sigue sin verse el catálogo, significa que **hay un error de sintaxis o de JavaScript** en el código (como una llave `{` o corchete `[` mal cerrado, o una función repetida) que está "rompiendo" todo el script y haciendo que la aplicación se detenga por completo.
+
+Para solucionarlo de raíz y dejarlo impecable, **aquí tienes todo tu código integrado y corregido** (con el soporte para múltiples imágenes, el carrito funcional, el visor de fotos en grande y el botón de emergencia para restaurar el catálogo).
+
+Copia todo el bloque de abajo y **reemplaza por completo** todo el contenido de tu archivo:
+
+```html
 <div id="gsmuebles-app" class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col justify-between">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -71,11 +78,6 @@
                 <button onclick="handleAdminAccess()" class="px-3 py-2 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-xl flex items-center gap-1.5 transition-colors border border-stone-300">
                     <i class="fa-solid fa-lock text-wood-600" id="adminIcon"></i>
                     <span class="hidden sm:inline" id="adminBtnText">Panel Admin</span>
-                </button>
-
-                <!-- BOTÓN TEMPORAL DE RESTAURACIÓN -->
-                <button onclick="resetCatalogoEmergencia()" class="px-3 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors">
-                Restaurar Catálogo
                 </button>
 
                 <!-- Shopping Cart Toggle -->
@@ -260,20 +262,18 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-stone-700 mb-1">Precio ($ USD / ARS) *</label>
-                            <input type="number" id="prodPrice" step="0.01" required placeholder="250.00" class="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-wood-500 focus:outline-none">
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">Precio ($ ARS) *</label>
+                            <input type="number" id="prodPrice" step="0.01" required placeholder="250000" class="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-wood-500 focus:outline-none">
                         </div>
 
                         <div>
-                           <div>
-                            <label class="block text-xs font-semibold text-stone-700 mb-1">URLs de las Imágenes (una por línea o separadas por coma) *</label>
+                            <label class="block text-xs font-semibold text-stone-700 mb-1">URLs de las Imágenes (una por línea o coma) *</label>
                             <textarea id="prodImages" rows="2" required placeholder="https://images.unsplash.com/...&#10;https://images.unsplash.com/..." class="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-wood-500 focus:outline-none"></textarea>
-                           </div>
                         </div>
 
                         <div class="md:col-span-2">
                             <label class="block text-xs font-semibold text-stone-700 mb-1">Descripción / Tipo de Madera *</label>
-                            <textarea id="prodDesc" rows="2" required placeholder="Ej: Fabricado en pino macizo con acabado protector hidrorrepelente..." class="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-wood-500 focus:outline-none"></textarea>
+                            <textarea id="prodDesc" rows="2" required placeholder="Ej: Fabricado en pino macizo con acabado protector..." class="w-full px-3 py-2 text-sm border border-stone-300 rounded-lg focus:ring-2 focus:ring-wood-500 focus:outline-none"></textarea>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -336,20 +336,27 @@
                 <p class="text-sm">Sábados: 09:00 - 13:00 hs</p>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-stone-800 text-xs text-center text-stone-500">
-            &copy; <span id="currentYear"></span> GSmuebles. Todos los derechos reservados.
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-stone-800 text-xs text-center text-stone-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span>&copy; <span id="currentYear"></span> GSmuebles. Todos los derechos reservados.</span>
+            <!-- BOTÓN DE RESTAURACIÓN DE EMERGENCIA -->
+            <button onclick="resetCatalogoEmergencia()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs shadow transition-all">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Restaurar Catálogo
+            </button>
         </div>
     </footer>
 
+    <!-- JAVASCRIPT UNIFICADO Y CORREGIDO -->
     <script>
-        // Initial Default Catalog Data
         const DEFAULT_PRODUCTS = [
             {
                 id: '1',
                 title: 'Mesa de Comedor Rústica Roble',
                 category: 'Comedor',
-                price: 450.00,
-                image: 'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80',
+                price: 450000,
+                images: [
+                    'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=800&q=80',
+                    'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Mesa maciza en madera de roble barnizada, ideal para 6 u 8 comensales.',
                 inStock: true
             },
@@ -357,8 +364,10 @@
                 id: '2',
                 title: 'Silla Tapizada de Petiribí',
                 category: 'Comedor',
-                price: 95.00,
-                image: 'https://images.unsplash.com/photo-1580481072645-022f9a6d83d0?auto=format&fit=crop&w=800&q=80',
+                price: 95000,
+                images: [
+                    'https://images.unsplash.com/photo-1580481072645-022f9a6d83d0?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Estructura sólida de madera con asiento ergonómico tapizado en lino.',
                 inStock: true
             },
@@ -366,8 +375,10 @@
                 id: '3',
                 title: 'Rack de TV Nordic Paraíso',
                 category: 'Salón',
-                price: 280.00,
-                image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
+                price: 280000,
+                images: [
+                    'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Mueble para televisión estilo nórdico con puertas corredizas y espacio para cables.',
                 inStock: true
             },
@@ -375,8 +386,10 @@
                 id: '4',
                 title: 'Cama King Size Cedro Macizo',
                 category: 'Dormitorio',
-                price: 620.00,
-                image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
+                price: 620000,
+                images: [
+                    'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Estructura robusta de cedro con respaldo labrado artesanalmente.',
                 inStock: true
             },
@@ -384,8 +397,10 @@
                 id: '5',
                 title: 'Escritorio Minimalista Guatambú',
                 category: 'Oficina',
-                price: 210.00,
-                image: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80',
+                price: 210000,
+                images: [
+                    'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Perfecto para home office. Incluye 2 cajones organizadores y acabado mate.',
                 inStock: true
             },
@@ -393,21 +408,20 @@
                 id: '6',
                 title: 'Juego de Banco & Mesa de Exterior',
                 category: 'Exterior',
-                price: 340.00,
-                image: 'https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=800&q=80',
+                price: 340000,
+                images: [
+                    'https://images.unsplash.com/photo-1519974719765-e6559eac2575?auto=format&fit=crop&w=800&q=80'
+                ],
                 description: 'Madera tratada para intemperie, resistente al sol y la humedad.',
                 inStock: true
             }
         ];
 
-        // Global State Variables
         let products = [];
         let cart = [];
         let activeCategory = 'Todos';
         let searchQuery = '';
         let isAdminAuthenticated = false;
-
-        // CLAVE DE ADMINISTRADOR
         const ADMIN_PASSWORD = "GSmuebles10";
 
         function initApp() {
@@ -417,7 +431,7 @@
             renderProducts();
             updateCartUI();
         }
-        // FUNCIÓN DE EMERGENCIA: Restablecer catálogo inicial
+
         function resetCatalogoEmergencia() {
             localStorage.removeItem('furniture_products');
             loadProducts();
@@ -426,73 +440,6 @@
             alert("¡Catálogo restaurado con éxito!");
         }
 
-        // Lógica de Autenticación de Administrador
-        function handleAdminAccess() {
-            if (isAdminAuthenticated) {
-                toggleAdminModal();
-            } else {
-                openAdminLoginModal();
-            }
-        }
-
-        function openAdminLoginModal() {
-            const modal = document.getElementById('adminLoginModal');
-            const errorMsg = document.getElementById('loginErrorMsg');
-            const passInput = document.getElementById('adminPasswordInput');
-            if (!modal) return;
-            
-            passInput.value = '';
-            errorMsg.classList.add('hidden');
-            modal.classList.remove('hidden');
-            setTimeout(() => passInput.focus(), 100);
-        }
-
-        function closeAdminLoginModal() {
-            const modal = document.getElementById('adminLoginModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function verifyAdminPassword(event) {
-            event.preventDefault();
-            const inputVal = document.getElementById('adminPasswordInput').value;
-            const errorMsg = document.getElementById('loginErrorMsg');
-
-            if (inputVal === ADMIN_PASSWORD) {
-                isAdminAuthenticated = true;
-                closeAdminLoginModal();
-                updateAdminBtnUI();
-                toggleAdminModal();
-            } else {
-                errorMsg.classList.remove('hidden');
-                document.getElementById('adminPasswordInput').value = '';
-            }
-        }
-
-        function logoutAdmin() {
-            isAdminAuthenticated = false;
-            updateAdminBtnUI();
-            toggleAdminModal();
-        }
-
-        function updateAdminBtnUI() {
-            const icon = document.getElementById('adminIcon');
-            const text = document.getElementById('adminBtnText');
-            if (isAdminAuthenticated) {
-                icon.className = 'fa-solid fa-lock-open text-green-600';
-                text.textContent = 'Panel Admin (Activo)';
-            } else {
-                icon.className = 'fa-solid fa-lock text-wood-600';
-                text.textContent = 'Panel Admin';
-            }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
-
-        // Load Products from LocalStorage or Defaults
         function loadProducts() {
             const saved = localStorage.getItem('furniture_products');
             if (saved) {
@@ -511,7 +458,6 @@
             localStorage.setItem('furniture_products', JSON.stringify(products));
         }
 
-        // Categories Management
         const categories = ['Todos', 'Comedor', 'Salón', 'Dormitorio', 'Oficina', 'Exterior'];
 
         function renderCategories() {
@@ -543,7 +489,8 @@
                 renderProducts();
             }
         }
-function renderProducts() {
+
+        function renderProducts() {
             const grid = document.getElementById('productGrid');
             const emptyState = document.getElementById('emptyState');
             const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'featured';
@@ -618,44 +565,7 @@ function renderProducts() {
                 `;
             }).join('');
         }
-                        </div>
-                    `;
-                }
 
-                return `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-                        <div class="relative h-56 bg-stone-100 overflow-hidden">
-                            <img id="main-img-${product.id}" src="${mainImg}" alt="${product.title}" 
-                                 onerror="this.src='https://placehold.co/600x400/ece0cb/5a3225?text=Sin+Imagen'"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-wood-800 shadow">
-                                ${product.category}
-                            </span>
-                            ${thumbnailsHTML}
-                        </div>
-                        <div class="p-5 flex-1 flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-bold text-stone-900 text-base mb-1 group-hover:text-wood-700 transition-colors">${product.title}</h3>
-                                <p class="text-stone-500 text-xs line-clamp-2 mb-4 font-light">${product.description}</p>
-                            </div>
-                            <div class="flex items-center justify-between pt-3 border-t border-stone-100">
-                                <div>
-                                    <span class="text-xs text-stone-400 block">Precio</span>
-                                    <span class="text-lg font-extrabold text-stone-900">$${Number(product.price).toLocaleString('es-AR')}</span>                                        
-                                </div>
-                                <button onclick="addToCart('${product.id}')" class="px-3.5 py-2 bg-wood-700 hover:bg-wood-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition-all active:scale-95">
-                                    <i class="fa-solid fa-cart-plus"></i> Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-       // ==========================================
-        // 1. GESTIÓN DE CARRITO
-        // ==========================================
         function addToCart(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
@@ -668,7 +578,7 @@ function renderProducts() {
             }
 
             updateCartUI();
-            toggleCartDrawer(); // Abre el carrito automáticamente para que veas el producto agregado
+            toggleCartDrawer();
         }
 
         function updateCartUI() {
@@ -679,7 +589,6 @@ function renderProducts() {
 
             const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
             
-            // Badge contador
             if (totalCount > 0) {
                 badge.textContent = totalCount;
                 badge.classList.remove('opacity-0');
@@ -789,9 +698,6 @@ function renderProducts() {
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // ==========================================
-        // 2. MODAL DE IMAGEN EN GRANDE (LIGHTBOX)
-        // ==========================================
         function openImageModal(imgSrc) {
             let modal = document.getElementById('imageLightboxModal');
             if (!modal) {
@@ -811,9 +717,65 @@ function renderProducts() {
             modal.classList.remove('hidden');
         }
 
-        // ==========================================
-        // 3. PANEL ADMIN Y TABLA DE PRODUCTOS
-        // ==========================================
+        function handleAdminAccess() {
+            if (isAdminAuthenticated) {
+                toggleAdminModal();
+            } else {
+                openAdminLoginModal();
+            }
+        }
+
+        function openAdminLoginModal() {
+            const modal = document.getElementById('adminLoginModal');
+            const errorMsg = document.getElementById('loginErrorMsg');
+            const passInput = document.getElementById('adminPasswordInput');
+            if (!modal) return;
+            
+            passInput.value = '';
+            errorMsg.classList.add('hidden');
+            modal.classList.remove('hidden');
+            setTimeout(() => passInput.focus(), 100);
+        }
+
+        function closeAdminLoginModal() {
+            const modal = document.getElementById('adminLoginModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function verifyAdminPassword(event) {
+            event.preventDefault();
+            const inputVal = document.getElementById('adminPasswordInput').value;
+            const errorMsg = document.getElementById('loginErrorMsg');
+
+            if (inputVal === ADMIN_PASSWORD) {
+                isAdminAuthenticated = true;
+                closeAdminLoginModal();
+                updateAdminBtnUI();
+                toggleAdminModal();
+            } else {
+                errorMsg.classList.remove('hidden');
+                document.getElementById('adminPasswordInput').value = '';
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminAuthenticated = false;
+            updateAdminBtnUI();
+            toggleAdminModal();
+        }
+
+        function updateAdminBtnUI() {
+            const icon = document.getElementById('adminIcon');
+            const text = document.getElementById('adminBtnText');
+            if (isAdminAuthenticated) {
+                icon.className = 'fa-solid fa-lock-open text-green-600';
+                text.textContent = 'Panel Admin (Activo)';
+            } else {
+                icon.className = 'fa-solid fa-lock text-wood-600';
+                text.textContent = 'Panel Admin';
+            }
+        }
+
         function toggleAdminModal() {
             const modal = document.getElementById('adminModal');
             if (modal) {
@@ -847,6 +809,66 @@ function renderProducts() {
             }).join('');
         }
 
+        function saveProduct(event) {
+            event.preventDefault();
+            const id = document.getElementById('prodId').value;
+            const title = document.getElementById('prodTitle').value;
+            const category = document.getElementById('prodCategory').value;
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            
+            const imagesRaw = document.getElementById('prodImages').value;
+            const images = imagesRaw.split(/[\n,]+/).map(img => img.trim()).filter(img => img !== "");
+            
+            const description = document.getElementById('prodDesc').value;
+            const inStock = document.getElementById('prodInStock').checked;
+
+            if (images.length === 0) {
+                alert("Debes ingresar al menos una URL de imagen.");
+                return;
+            }
+
+            if (id) {
+                const index = products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    products[index] = { id, title, category, price, images, description, inStock };
+                }
+            } else {
+                const newProduct = {
+                    id: Date.now().toString(),
+                    title,
+                    category,
+                    price,
+                    images,
+                    description,
+                    inStock
+                };
+                products.push(newProduct);
+            }
+
+            saveProductsToStorage();
+            renderProducts();
+            renderAdminTable();
+            resetForm();
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('prodId').value = product.id;
+            document.getElementById('prodTitle').value = product.title;
+            document.getElementById('prodCategory').value = product.category;
+            document.getElementById('prodPrice').value = product.price;
+            
+            const imgList = product.images ? product.images.join('\n') : (product.image || '');
+            document.getElementById('prodImages').value = imgList;
+            
+            document.getElementById('prodDesc').value = product.description;
+            document.getElementById('prodInStock').checked = product.inStock;
+
+            document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen text-wood-600"></i> Editar Producto';
+        }
+
         function deleteProduct(id) {
             if (confirm("¿Estás seguro de eliminar este producto?")) {
                 products = products.filter(p => p.id !== id);
@@ -860,6 +882,12 @@ function renderProducts() {
             document.getElementById('productForm').reset();
             document.getElementById('prodId').value = '';
             document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-plus text-wood-600"></i> Agregar Nuevo Producto';
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
         }
     </script>
 </div>
