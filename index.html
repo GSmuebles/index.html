@@ -145,6 +145,21 @@
         </div>
     </main>
 
+    <!-- MODAL PESTAÑA DETALLE DE PRODUCTO (CARRUSEL Y DESCRIPCIÓN) -->
+    <div id="productModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-4 bg-stone-900 text-white flex items-center justify-between">
+                <h3 class="font-bold text-base tracking-wide" id="modalProductTitle">Detalle del Producto</h3>
+                <button onclick="closeProductModal()" class="text-stone-400 hover:text-white text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="productModalContent" class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-6">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+        </div>
+    </div>
+
     <!-- Cart Drawer Container -->
     <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none transition-opacity duration-300 opacity-0">
         <!-- Backdrop -->
@@ -332,14 +347,13 @@
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-stone-800 text-xs text-center text-stone-500 flex flex-col sm:flex-row items-center justify-between gap-4">
             <span>&copy; <span id="currentYear"></span> GSmuebles. Todos los derechos reservados.</span>
-            <!-- BOTÓN DE RESTAURACIÓN DE EMERGENCIA -->
             <button onclick="resetCatalogoEmergencia()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs shadow transition-all">
                 <i class="fa-solid fa-rotate-right mr-1"></i> Restaurar Catálogo
             </button>
         </div>
     </footer>
 
-    <!-- JAVASCRIPT UNIFICADO Y CORREGIDO -->
+    <!-- SCRIPT JS PRINCIPAL -->
     <script>
         const DEFAULT_PRODUCTS = [
             {
@@ -517,35 +531,23 @@
                 const imgArray = product.images && product.images.length > 0 ? product.images : [product.image || 'https://placehold.co/600x400/ece0cb/5a3225?text=Sin+Imagen'];
                 const mainImg = imgArray[0];
 
-                let thumbnailsHTML = '';
-                if (imgArray.length > 1) {
-                    thumbnailsHTML = `
-                        <div class="absolute bottom-3 right-3 flex gap-1 bg-black/40 backdrop-blur-md p-1 rounded-lg" onclick="event.stopPropagation()">
-                            ${imgArray.map((img) => `
-                                <img src="${img}" onclick="document.getElementById('main-img-${product.id}').src='${img}'; event.stopPropagation();" 
-                                     class="w-8 h-8 object-cover rounded cursor-pointer border border-white/50 hover:scale-110 transition-transform">
-                            `).join('')}
-                        </div>
-                    `;
-                }
-
                 return `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-                        <div class="relative h-56 bg-stone-100 overflow-hidden cursor-pointer" onclick="openImageModal(document.getElementById('main-img-${product.id}').src)">
-                            <img id="main-img-${product.id}" src="${mainImg}" alt="${product.title}" 
+                    <div onclick="openProductModal('${product.id}')" class="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group cursor-pointer">
+                        <div class="relative h-56 bg-stone-100 overflow-hidden">
+                            <img src="${mainImg}" alt="${product.title}" 
                                  onerror="this.src='https://placehold.co/600x400/ece0cb/5a3225?text=Sin+Imagen'"
                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-wood-800 shadow pointer-events-none">
+                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-semibold text-wood-800 shadow">
                                 ${product.category}
                             </span>
-                            ${thumbnailsHTML}
+                            ${imgArray.length > 1 ? `<span class="absolute bottom-3 right-3 bg-black/60 text-white px-2 py-0.5 rounded text-xs font-bold"><i class="fa-solid fa-images mr-1"></i>${imgArray.length}</span>` : ''}
                         </div>
                         <div class="p-5 flex-1 flex flex-col justify-between">
                             <div>
                                 <h3 class="font-bold text-stone-900 text-base mb-1 group-hover:text-wood-700 transition-colors">${product.title}</h3>
                                 <p class="text-stone-500 text-xs line-clamp-2 mb-4 font-light">${product.description}</p>
                             </div>
-                            <div class="flex items-center justify-between pt-3 border-t border-stone-100">
+                            <div class="flex items-center justify-between pt-3 border-t border-stone-100" onclick="event.stopPropagation()">
                                 <div>
                                     <span class="text-xs text-stone-400 block">Precio</span>
                                     <span class="text-lg font-extrabold text-stone-900">$${Number(product.price).toLocaleString('es-AR')}</span>                                        
@@ -558,6 +560,62 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        // FUNCIÓN ABRIR DETALLE Y GALERÍA COMPLETA
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const modal = document.getElementById('productModal');
+            const titleEl = document.getElementById('modalProductTitle');
+            const contentEl = document.getElementById('productModalContent');
+
+            titleEl.textContent = product.title;
+            const imgArray = product.images && product.images.length > 0 ? product.images : [product.image || 'https://placehold.co/600x400/ece0cb/5a3225?text=Sin+Imagen'];
+
+            let thumbnailsHTML = '';
+            if (imgArray.length > 1) {
+                thumbnailsHTML = `
+                    <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                        ${imgArray.map((img) => `
+                            <img src="${img}" onclick="document.getElementById('modalMainImg').src='${img}'" 
+                                 class="w-16 h-16 object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-wood-600 transition-all shadow-sm shrink-0">
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            contentEl.innerHTML = `
+                <div class="space-y-4">
+                    <div class="relative h-72 sm:h-80 bg-stone-100 rounded-2xl overflow-hidden shadow-inner">
+                        <img id="modalMainImg" src="${imgArray[0]}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-wood-800 shadow">
+                            ${product.category}
+                        </span>
+                    </div>
+                    ${thumbnailsHTML}
+                    <div class="space-y-2 pt-2 border-t border-stone-100">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-wood-600">Descripción del Mueble</h4>
+                        <p class="text-stone-700 text-sm leading-relaxed font-light bg-stone-50 p-4 rounded-xl border border-stone-100">${product.description}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 border-t border-stone-100">
+                        <div>
+                            <span class="text-xs text-stone-400 block">Precio Final</span>
+                            <span class="text-2xl font-extrabold text-stone-900">$${Number(product.price).toLocaleString('es-AR')}</span>
+                        </div>
+                        <button onclick="addToCart('${product.id}'); closeProductModal();" class="px-6 py-3 bg-wood-700 hover:bg-wood-800 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg transition-all">
+                            <i class="fa-solid fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
         }
 
         function addToCart(id) {
@@ -692,25 +750,6 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        function openImageModal(imgSrc) {
-            let modal = document.getElementById('imageLightboxModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'imageLightboxModal';
-                modal.className = 'fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer';
-                modal.onclick = () => modal.classList.add('hidden');
-                modal.innerHTML = `
-                    <div class="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center" onclick="event.stopPropagation()">
-                        <button onclick="document.getElementById('imageLightboxModal').classList.add('hidden')" class="absolute -top-10 right-0 text-white text-2xl hover:text-stone-300"><i class="fa-solid fa-xmark"></i></button>
-                        <img id="lightboxImg" src="" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl">
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-            document.getElementById('lightboxImg').src = imgSrc;
-            modal.classList.remove('hidden');
-        }
-
         function handleAdminAccess() {
             if (isAdminAuthenticated) {
                 toggleAdminModal();
@@ -789,7 +828,7 @@
                 return `
                     <tr class="hover:bg-stone-50 border-b border-stone-100">
                         <td class="p-3">
-                            <img src="${imgUrl}" class="w-12 h-12 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity" onclick="openImageModal('${imgUrl}')" onerror="this.src='https://placehold.co/100x100/ece0cb/5a3225?text=Img'">
+                            <img src="${imgUrl}" class="w-12 h-12 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity" onclick="openProductModal('${product.id}')" onerror="this.src='https://placehold.co/100x100/ece0cb/5a3225?text=Img'">
                         </td>
                         <td class="p-3 font-semibold text-stone-800">${product.title}</td>
                         <td class="p-3"><span class="px-2 py-1 bg-stone-100 rounded-md text-xs">${product.category}</span></td>
