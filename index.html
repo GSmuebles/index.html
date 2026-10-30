@@ -145,7 +145,7 @@
         </div>
     </main>
 
-    <!-- MODAL PESTAÑA DETALLE DE PRODUCTO (CARRUSEL Y DESCRIPCIÓN) -->
+    <!-- MODAL PESTAÑA DETALLE DE PRODUCTO -->
     <div id="productModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-stone-900/60 backdrop-blur-sm p-4 sm:p-6 flex items-center justify-center">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="p-4 bg-stone-900 text-white flex items-center justify-between">
@@ -155,8 +155,16 @@
                 </button>
             </div>
             <div id="productModalContent" class="p-6 overflow-y-auto flex-1 custom-scrollbar space-y-6">
-                <!-- Se llena dinámicamente con JS -->
+                <!-- Se llena dinámicamente -->
             </div>
+        </div>
+    </div>
+
+    <!-- VISOR DE IMAGEN EN PANTALLA COMPLETA (LIGHTBOX) -->
+    <div id="imageLightboxModal" class="fixed inset-0 z-[60] bg-stone-950/90 backdrop-blur-md hidden flex items-center justify-center p-4 cursor-pointer" onclick="closeLightbox()">
+        <div class="relative max-w-5xl max-h-[95vh] w-full flex items-center justify-center" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" class="absolute -top-12 right-0 text-white text-3xl hover:text-stone-300 p-2"><i class="fa-solid fa-xmark"></i></button>
+            <img id="lightboxImg" src="" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl">
         </div>
     </div>
 
@@ -353,7 +361,7 @@
         </div>
     </footer>
 
-    <!-- SCRIPT JS PRINCIPAL -->
+    <!-- SCRIPT JS -->
     <script>
         const DEFAULT_PRODUCTS = [
             {
@@ -562,7 +570,7 @@
             }).join('');
         }
 
-        // FUNCIÓN ABRIR DETALLE Y GALERÍA COMPLETA
+        // ABRIR DETALLE Y GALERÍA COMPLETA
         function openProductModal(productId) {
             const product = products.find(p => p.id === productId);
             if (!product) return;
@@ -588,8 +596,11 @@
 
             contentEl.innerHTML = `
                 <div class="space-y-4">
-                    <div class="relative h-72 sm:h-80 bg-stone-100 rounded-2xl overflow-hidden shadow-inner">
-                        <img id="modalMainImg" src="${imgArray[0]}" class="w-full h-full object-cover">
+                    <div class="relative h-72 sm:h-80 bg-stone-100 rounded-2xl overflow-hidden shadow-inner group cursor-pointer" title="Hacer clic para ampliar imagen" onclick="openLightbox(document.getElementById('modalMainImg').src)">
+                        <img id="modalMainImg" src="${imgArray[0]}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute bottom-3 right-3 bg-black/60 text-white px-2.5 py-1 rounded-lg text-xs font-bold backdrop-blur-md">
+                            <i class="fa-solid fa-expand mr-1"></i> Ver en pantalla completa
+                        </span>
                         <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-wood-800 shadow">
                             ${product.category}
                         </span>
@@ -616,6 +627,16 @@
 
         function closeProductModal() {
             document.getElementById('productModal').classList.add('hidden');
+        }
+
+        // VISOR PANTALLA COMPLETA (LIGHTBOX)
+        function openLightbox(imgSrc) {
+            document.getElementById('lightboxImg').src = imgSrc;
+            document.getElementById('imageLightboxModal').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('imageLightboxModal').classList.add('hidden');
         }
 
         function addToCart(id) {
